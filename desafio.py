@@ -1,58 +1,96 @@
-menu = """
+contas = []
 
-[d] Depositar
-[s] Sacar
-[e] Extrato
-[q] Sair
+def criar_conta(nome, sobrenome, cpf, saldo_inicial):
+    
+    conta = {
+        'nome': nome,
+        'sobrenome': sobrenome,
+        'cpf': cpf,
+        'saldo': saldo_inicial
+    }
+    contas.append(conta)
+    print(f"Conta criada com sucesso para {nome} {sobrenome}.")
 
-=> """
-
-saldo = 0
-limite = 500
-extrato = ""
-numero_saques = 0
-LIMITE_SAQUES = 3
-
-while True:
+def listar_contas():
     
-    limite_atingido = numero_saques >= LIMITE_SAQUES     
-    
-    opcao = input(menu)
-    
-    if opcao == "d":
-        valor = float(input("Digite o valor de deposito: "))
-        
-        if valor > 0:
-            saldo += valor
-            extrato += f'Depósito: R$ {valor:.2f}\n'
-            print(f'Seu depósito no valor de R$ {valor:.2f} foi efetuado com sucesso!')
-            
-        else:
-            print('Valor inválido')
-        
-    elif opcao == "s":
-        valor = float(input("Digite o valor desejado para o saque: "))
-        
-        if valor > saldo:
-            print("O valor Informado é maior que seu saldo atual")
-            
-        elif limite_atingido == True:
-            print('Limite de saques diários atingido.')
-            
-        elif valor < saldo and valor <= limite and limite_atingido != True:
-            saldo -= valor
-            extrato += f'Saque: R$ {valor:.2f}\n'
-            numero_saques += 1
-            print(f'Seu saque no valor de R$ {valor:.2f} foi efetuado com sucesso!')
-            
-        else:
-            print("O valor solicitado é maior que seu limite de saque")
-        
-    elif opcao == "e":
-        print(extrato)
-        
-    elif opcao == "q":
-        break
-    
+    if not contas:
+        print("Nenhuma conta encontrada.")
     else:
-        print('Opção inválida')
+        for conta in contas:
+            print(f"Nome: {conta['nome']} {conta['sobrenome']}, CPF: {conta['cpf']}, Saldo: R${conta['saldo']}")
+
+def buscar_conta(cpf):
+    
+    for conta in contas:
+        if conta['cpf'] == cpf:
+            return conta
+    return None
+
+def exibir_conta(cpf):
+    
+    conta = buscar_conta(cpf)
+    if conta:
+        print(f"Nome: {conta['nome']} {conta['sobrenome']}, CPF: {conta['cpf']}, Saldo: R${conta['saldo']}")
+    else:
+        print(f"Nenhuma conta encontrada para o CPF {cpf}.")
+
+def depositar(cpf, valor):
+    
+    conta = buscar_conta(cpf)
+    if conta:
+        conta['saldo'] += valor
+        print(f"Depósito de R${valor} realizado com sucesso para {conta['nome']} {conta['sobrenome']}.")
+    else:
+        print(f"Nenhuma conta encontrada para o CPF {cpf}.")
+
+def sacar(cpf, valor):
+    
+    conta = buscar_conta(cpf)
+    if conta:
+        if conta['saldo'] >= valor:
+            conta['saldo'] -= valor
+            print(f"Saque de R${valor} realizado com sucesso para {conta['nome']} {conta['sobrenome']}.")
+        else:
+            print(f"Saldo insuficiente para saque na conta de {conta['nome']} {conta['sobrenome']}.")
+    else:
+        print(f"Nenhuma conta encontrada para o CPF {cpf}.")
+
+def menu():
+    
+    while True:
+        opcao = input("""
+[1] Criar conta
+[2] Depositar
+[3] Sacar
+[4] Extrato
+[5] Listar Contas
+[6] Sair
+
+=> """)
+        
+        if opcao == '1':
+            nome = input("Nome: ")
+            sobrenome = input("Sobrenome: ")
+            cpf = input("CPF: ")
+            saldo_inicial = float(input("Saldo inicial: R$"))
+            criar_conta(nome, sobrenome, cpf, saldo_inicial)
+        elif opcao == '2':
+            cpf = input("CPF da conta para depósito: ")
+            valor = float(input("Valor do depósito: R$"))
+            depositar(cpf, valor)
+        elif opcao == '3':
+            cpf = input("CPF da conta para saque: ")
+            valor = float(input("Valor do saque: R$"))
+            sacar(cpf, valor)
+        elif opcao == '4':
+            cpf = input("CPF da conta: ")
+            exibir_conta(cpf)
+        elif opcao == '5':
+            listar_contas()
+        elif opcao == '6':
+            print("Saindo...")
+            break
+        else:
+            print("Opção inválida. Tente novamente.")
+
+menu()
